@@ -40,6 +40,7 @@ def string_bool(s):
 
 def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADMET):
     # ID = '\"' + ID + '\"'
+    ID = ID + "_ligand"
     feat1 = list(ligand_featurefile_PADEL.loc[ID])
     feat2 = list(ligand_featurefile_ADMET.loc[ID])
 
