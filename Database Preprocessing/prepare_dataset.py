@@ -102,14 +102,13 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
 
 
 if __name__ == '__main__':
-    pocket_dir = '../../raw_data/pocket_mol2/'
-    ligand_dir = '../../raw_data/ligand_mol2_filtered/'
-    output_dir = "../../processed_data/"
-    protein_feature_path = '../../raw_data/protein_pdb_featurized/'
-    featurefile_path_PADEL = '../../raw_data/ligand_PADEL.csv'
-    featurefile_path_ADMET = '../../raw_data/ligand_ADMET.csv'
-    #TODO Scrap Affinity value from web :: Status : Done
-    affinities = '../../raw_data/affinity.csv'
+    pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_mol2/'
+    ligand_dir = '/home/binnu/Asad/dataset/pdbbind/ligand_mol2_filtered/'
+    output_dir = "/home/binnu/Asad/dataset/pdbbind/processed_data/"
+    protein_feature_path = '/home/binnu/Asad/dataset/pdbbind/protein_pdb_featurized/'
+    featurefile_path_PADEL = '/home/binnu/Asad/dataset/pdbbind/ligand_PADEL.csv'
+    featurefile_path_ADMET = '/home/binnu/Asad/dataset/pdbbind/ligand_ADMET.csv'
+    affinities = '/home/binnu/Asad/dataset/pdbbind/affinity.csv'
 
     #global featurizer, charge_idx
     #featurizer = Featurizer()
@@ -135,7 +134,7 @@ if __name__ == '__main__':
     #         calc_features(pocket_dir, ligand_dir, file[:-4], output_dir)
 
 
-    pdb_ligand_ID = '../../raw_data/PDB_ligands_chain_ID_pssm_Admet_padel.txt'
+    pdb_ligand_ID = '/home/binnu/Asad/dataset/pdbbind/PDBBind.txt'
     with open(pdb_ligand_ID, "r") as f:
         pdb_ligand_ID = f.readlines()
     for i in range(len(pdb_ligand_ID)):
@@ -162,7 +161,7 @@ if __name__ == '__main__':
             #datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "a")
             datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "a")
 
-        if(ID[:8] not in segmentation_fault and ID not in file_done and ID[:8] not in naccess_error):
+        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error):
             print("==> Creating Feature file : ", ID, iterr)
             create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET)
             file_done.append(ID + '\n')
