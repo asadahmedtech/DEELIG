@@ -105,7 +105,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
 
 if __name__ == '__main__':
     pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_mol2/'
-    ligand_dir = '/home/binnu/Asad/dataset/pdbbind/ligand_mol2_filtered/'
+    ligand_dir = '/home/binnu/Asad/dataset/pdbbind/ligand_mol2/'
     output_dir = "/home/binnu/Asad/dataset/pdbbind/processed_data/"
     protein_feature_path = '/home/binnu/Asad/dataset/pdbbind/protein_pdb_featurized/'
     featurefile_path_PADEL = '/home/binnu/Asad/dataset/pdbbind/ligand_PADEL.csv'
