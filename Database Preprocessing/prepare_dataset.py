@@ -42,7 +42,7 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
     # ID = '\"' + ID + '\"'
     ID = ID + "_ligand"
     feat1 = list(ligand_featurefile_PADEL.loc[ID])
-    feat2 = list(ligand_featurefile_ADMET.loc[ID])
+    feat2 = list(ligand_featurefile_ADMET[ID])
 
     PADEL_INDEX = [2, 40, 41, 3] + list(range(13, 22)) + list(range(2167, 13613))
     ADMET_INDEX = [1, 2, 3, 4, 5, 6,
@@ -128,7 +128,21 @@ if __name__ == '__main__':
         affinities = None
 
     ligand_featurefile_PADEL = pd.read_csv(featurefile_path_PADEL, index_col ='Name')
-    ligand_featurefile_ADMET = pd.read_csv(featurefile_path_ADMET, index_col = 'molecule')
+    # ligand_featurefile_ADMET = pd.read_csv(featurefile_path_ADMET, index_col = 'molecule')
+    ligand_featurefile_ADMET = open(ligand_featurefile_ADMET, "r")
+    ligand_ADMET_dic = dict()
+    ligand_errors = []
+    for lines in csv.reader(ligand_featurefile_ADMET, delimiter=","):
+        if "molecule" in lines or '' in lines:
+            ligand_errors.append(lines[0]+"\n")
+            ligand_ADMET_dic[lines[0]] = [0 for i in range(52)]
+            pass
+        else:
+            ligand_ADMET_dic[lines[0]] = lines
+    with open("ligand_errors_admet.txt","w") as f:
+        f.writelines(ligand_errors)
+        f.flush()
+        f.close()
     # for file in files:
     #     if(file.endswith(".pdb")):
     #         print("==> Creating Feature file : ", file)
@@ -164,7 +178,7 @@ if __name__ == '__main__':
 
         if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error):
             print("==> Creating Feature file : ", ID, iterr)
-            create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET)
+            create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_ADMET_dic)
             file_done.append(ID + '\n')
             with open('file_done.txt', 'w') as f:
                 f.writelines(file_done)
