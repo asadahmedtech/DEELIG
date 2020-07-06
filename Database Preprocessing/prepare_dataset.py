@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     ligand_featurefile_PADEL = pd.read_csv(featurefile_path_PADEL, index_col ='Name')
     # ligand_featurefile_ADMET = pd.read_csv(featurefile_path_ADMET, index_col = 'molecule')
-    ligand_featurefile_ADMET = open(ligand_featurefile_ADMET, "r")
+    ligand_featurefile_ADMET = open(featurefile_path_ADMET, "r")
     ligand_ADMET_dic = dict()
     ligand_errors = []
     for lines in csv.reader(ligand_featurefile_ADMET, delimiter=","):
