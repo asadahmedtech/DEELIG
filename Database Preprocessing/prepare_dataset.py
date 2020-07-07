@@ -206,7 +206,7 @@ if __name__ == '__main__':
             #datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "a")
             datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "a")
 
-        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and not in ligand_errors):
+        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and ID not in ligand_errors):
             print("==> Creating Feature file : ", ID, iterr)
             create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_ADMET_dic)
             file_done.append(ID + '\n')
