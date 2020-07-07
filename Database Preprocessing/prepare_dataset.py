@@ -92,11 +92,11 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
     #data_pocket = np.concatenate((pocket_coords, pocket_features), axis=1)
     
     #dataset_pocket = datafile_pocket.create_dataset(ID, data=data_pocket, shape=data_pocket.shape,dtype='float32', compression='lzf')
-    #dataset_pocket.attrs['affinity'] = affinities.loc[ID.split('_')[0] + '_' + ID.split('_')[1]]
+    #dataset_pocket.attrs['affinity'] = affinities.loc[ID]
     if(ligand_features != []):
         print(ligand_features.shape)
         dataset_ligand = datafile_ligand.create_dataset(ID, data=ligand_features, shape=ligand_features.shape, dtype='float32')
-        dataset_ligand.attrs['affinity'] = affinities.loc[ID.split('_')[0] + '_' + ID.split('_')[1]]
+        dataset_ligand.attrs['affinity'] = affinities.loc[ID]
     
         print("===> File dumped : ", ID)
     else:
@@ -118,6 +118,7 @@ if __name__ == '__main__':
     
     # files = os.listdirs(pocket_dir)
 
+     print("=> Loading Affinity csv")
     if(affinities is not None):
         affinities = pd.read_csv(affinities)
         if 'affinity' not in affinities.columns:
@@ -125,11 +126,14 @@ if __name__ == '__main__':
         elif 'name' not in affinities.columns:
             raise ValueError('There is no `name` column in the table')
         affinities = affinities.set_index('name')['affinity']
+        print("=> Loaded Affinity csv")
     else:
         affinities = None
 
+    print("=> Loading PADEL csv")
     ligand_featurefile_PADEL = pd.read_csv(featurefile_path_PADEL, index_col ='Name')
     # ligand_featurefile_ADMET = pd.read_csv(featurefile_path_ADMET, index_col = 'molecule')
+    print("=> Loading ADMET csv")
     ligand_featurefile_ADMET = open(featurefile_path_ADMET, "r")
     ligand_ADMET_dic = dict()
     ligand_errors = []
@@ -144,11 +148,12 @@ if __name__ == '__main__':
         f.writelines(ligand_errors)
         f.flush()
         f.close()
+    print("=> Created ADMET dict")
+
     # for file in files:
     #     if(file.endswith(".pdb")):
     #         print("==> Creating Feature file : ", file)
     #         calc_features(pocket_dir, ligand_dir, file[:-4], output_dir)
-
 
     pdb_ligand_ID = '/home/binnu/Asad/dataset/pdbbind/PDBBind.txt'
     with open(pdb_ligand_ID, "r") as f:
@@ -156,6 +161,8 @@ if __name__ == '__main__':
     for i in range(len(pdb_ligand_ID)):
         pdb_ligand_ID[i] = pdb_ligand_ID[i][:-1]
     iterr = 1
+    print("=> Loading PDB IDs")
+
     
     global error
     error = []
