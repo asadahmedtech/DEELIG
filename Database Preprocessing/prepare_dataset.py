@@ -8,6 +8,7 @@ from extract_features import Featurizer
 import csv
 import os
 
+ligand_PADEL_error = []
 
 def input_file(path):
     """Check if input file exists."""
@@ -42,7 +43,11 @@ def string_bool(s):
 def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADMET):
     # ID = '\"' + ID + '\"'
     ID = ID + "_ligand"
-    feat1 = list(ligand_featurefile_PADEL.loc[ID])
+    try:
+        feat1 = list(ligand_featurefile_PADEL.loc[ID])
+    except Exception as e:
+        ligand_PADEL_error.append(ID.split("_")[0]+"\n")
+
     feat2 = list(ligand_featurefile_ADMET[ID])
 
     PADEL_INDEX = [2, 40, 41, 3] + list(range(13, 22)) + list(range(2167, 13613))
@@ -194,6 +199,12 @@ if __name__ == '__main__':
 
        # datafile_pocket.close()
         datafile_ligand.close()
+    
+    with open("ligand_errors_padel.txt","w") as f:
+        f.writelines(ligand_PADEL_error)
+        f.flush()
+        f.close()
+
     print(error)
     # datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "w")
     # datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "w")
