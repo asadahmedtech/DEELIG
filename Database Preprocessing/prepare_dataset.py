@@ -9,6 +9,7 @@ import csv
 import os
 
 ligand_PADEL_error = []
+ligand_ADMET_error = []
 
 def input_file(path):
     """Check if input file exists."""
@@ -46,9 +47,23 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
     try:
         feat1 = list(ligand_featurefile_PADEL.loc[ID])
     except Exception as e:
-        ligand_PADEL_error.append(ID.split("_")[0]+"\n")
+        try:
+            ID = ID.split("_")[0].upper() + "_ligand"
+            feat1 = list(ligand_featurefile_PADEL.loc[ID])
+        except Exception as e:
+            ligand_PADEL_error.append(ID.split("_")[0]+"\n")
+            return []
 
-    feat2 = list(ligand_featurefile_ADMET[ID])
+    try:
+        feat2 = list(ligand_featurefile_ADMET[ID])
+    except Exception as e:
+        try:
+            ID = ID.split("_")[0].upper() + "_ligand"
+            feat2 = list(ligand_featurefile_ADMET[ID])
+        except Exception as e:
+            ligand_ADMET_error.append(ID.split("_")[0]+"\n")
+            return []
+
 
     PADEL_INDEX = [2, 40, 41, 3] + list(range(13, 22)) + list(range(2167, 13613))
     ADMET_INDEX = [1, 2, 3, 4, 5, 6,
@@ -105,6 +120,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
     
         print("===> File dumped : ", ID)
     else:
+        print("===> Error : ", ID)
         error.append(ID)
 
 
@@ -202,6 +218,10 @@ if __name__ == '__main__':
     
     with open("ligand_errors_padel.txt","w") as f:
         f.writelines(ligand_PADEL_error)
+        f.flush()
+        f.close()
+    with open("ligand_errors_admet_run.txt","w") as f:
+        f.writelines(ligand_ADMET_error)
         f.flush()
         f.close()
 
