@@ -118,7 +118,7 @@ if __name__ == '__main__':
     
     # files = os.listdirs(pocket_dir)
 
-     print("=> Loading Affinity csv")
+    print("=> Loading Affinity csv")
     if(affinities is not None):
         affinities = pd.read_csv(affinities)
         if 'affinity' not in affinities.columns:
