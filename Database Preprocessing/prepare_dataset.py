@@ -160,12 +160,13 @@ if __name__ == '__main__':
     ligand_errors = []
     for lines in csv.reader(ligand_featurefile_ADMET, delimiter=","):
         if "molecule" in lines or '' in lines:
-            ligand_errors.append(lines[0]+"\n")
+            ligand_errors.append(lines[0])
             ligand_ADMET_dic[lines[0]] = [0 for i in range(52)]
             pass
         else:
             ligand_ADMET_dic[lines[0]] = lines
     with open("ligand_errors_admet.txt","w") as f:
+        ligand_errors = [i+"\n" for i in ligand_errors]
         f.writelines(ligand_errors)
         f.flush()
         f.close()
@@ -205,7 +206,7 @@ if __name__ == '__main__':
             #datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "a")
             datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "a")
 
-        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error):
+        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and not in ligand_errors):
             print("==> Creating Feature file : ", ID, iterr)
             create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_ADMET_dic)
             file_done.append(ID + '\n')
