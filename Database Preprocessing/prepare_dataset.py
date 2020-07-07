@@ -10,7 +10,7 @@ import os
 
 ligand_PADEL_error = []
 ligand_ADMET_error = []
-
+ligand_404 = []
 def input_file(path):
     """Check if input file exists."""
 
@@ -88,8 +88,11 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
 def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "mol2", ligand_format = "mol2"):
     
     #pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID.split("_")[0].lower() + "_pocket.%s"%(pocket_format))))
-    ligand = next(pybel.readfile(ligand_format, os.path.join(ligand_dir, ID + '_ligand.mol2')))
-    
+    try:
+        ligand = next(pybel.readfile(ligand_format, os.path.join(ligand_dir, ID + '_ligand.mol2')))
+    except Exception as e:
+        ligand_404.append(ID)
+        return
     #try:        
         #pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
     #except EOFError:
@@ -223,6 +226,12 @@ if __name__ == '__main__':
         f.close()
     with open("ligand_errors_admet_run.txt","w") as f:
         f.writelines(ligand_ADMET_error)
+        f.flush()
+        f.close()
+
+    with open("ligand_errors_mol2_run.txt","w") as f:
+        ligand_404 = [i+"\n" for i in ligand_404]
+        f.writelines(ligand_404)
         f.flush()
         f.close()
 
