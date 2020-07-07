@@ -68,7 +68,7 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
 def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "mol2", ligand_format = "mol2"):
     
     #pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID.split("_")[0].lower() + "_pocket.%s"%(pocket_format))))
-    ligand = next(pybel.readfile(ligand_format, os.path.join(ligand_dir, ID + '.mol2')))
+    ligand = next(pybel.readfile(ligand_format, os.path.join(ligand_dir, ID + '_ligand.mol2')))
     
     #try:        
         #pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
@@ -90,7 +90,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
         # )
     
     #data_pocket = np.concatenate((pocket_coords, pocket_features), axis=1)
-
+    
     #dataset_pocket = datafile_pocket.create_dataset(ID, data=data_pocket, shape=data_pocket.shape,dtype='float32', compression='lzf')
     #dataset_pocket.attrs['affinity'] = affinities.loc[ID.split('_')[0] + '_' + ID.split('_')[1]]
     if(ligand_features != []):
