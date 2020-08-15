@@ -59,7 +59,7 @@ def calc_features(PATH, pdb_ligand_ID, OUTPATH):
 	parser = PDBParser(PERMISSIVE = 1)
 
 	PDB_id = pdb_ligand_ID[:4].lower() #+ '_pocket'
-	filename = os.path.join(PATH, PDB_id + ".pdb")
+	filename = os.path.join(PATH, PDB_id + "_protein.pdb")
 	try:
 		structure = parser.get_structure(PDB_id, filename)
 	except Exception as e:
