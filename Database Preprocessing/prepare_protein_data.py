@@ -26,6 +26,9 @@ SS_Labels = {'H' : 1, 'B' : 2, 'E' : 3, 'G' : 4, 'I' : 5, 'T' : 6, 'S' : 7, '-' 
 """
 RSA_Threshold = 25
 
+errors = []
+naccess_errors = []
+
 def parse_PSSM(file, path = '/home/binnu/Asad/dataset/pdbbind/pssm/'):
 	pssm = {}
 	file = "outpssm_" + file
@@ -57,15 +60,30 @@ def calc_features(PATH, pdb_ligand_ID, OUTPATH):
 
 	PDB_id = pdb_ligand_ID[:4].lower() #+ '_pocket'
 	filename = os.path.join(PATH, PDB_id + ".pdb")
-	structure = parser.get_structure(PDB_id, filename)
+	try:
+		structure = parser.get_structure(PDB_id, filename)
+	except Exception as e:
+		print("FILE NOT PRESENT: ", PDB_id)
+		errors.append(PDB_id)
+		return
 	model = structure[0]
 
 	#DSSP Analysis for SS, PHI, PSI
-	dssp = DSSP(model, filename)
-
+	try:
+		dssp = DSSP(model, filename)
+	except Exception as e:
+		naccess_errors.append(PDB_id)
+		print("NACCESS NOT PRESENT: ", PDB_id)
+		return 
+		
 	#NACCESS Analysis for SASA
-	rsa, asa = run_naccess(model, filename)
-	rsa = process_rsa_data(rsa)
+	try:
+		rsa, asa = run_naccess(model, filename)
+		rsa = process_rsa_data(rsa)
+	except Exception as e:
+		naccess_errors.append(PDB_id)
+		print("NACCESS NOT PRESENT: ", PDB_id)
+		return 
 	# print(rsa)
 	#Feature mapping to each atomic coordinate
 	dssp_present, dssp_not_present = 0, 0
@@ -146,9 +164,29 @@ if __name__ == '__main__':
 	files_done = [i[:-4] for i in files_done]
 	print(files_done)
 
+	not_present_files = open("not_present.txt", 'r')
+	not_present_files = not_present_files.readlines()
+	not_present_files = [i[:-1] for i in not_present_files]
+
+	naccess_not_present_files = open("nacces_not_present.txt", 'r')
+	naccess_not_present_files = naccess_not_present_files.readlines()
+	naccess_not_present_files = [i[:-1] for i in naccess_not_present_files]
+
+
 	# Add the PDB IDs of file which NACCESS gives segmentation fault.
 	naccess_error = ['5FQD_LVY', '4EJG_NCT', '3N7A_FA1' , '2IJ7_TPF', '4EJH_0QA','2QJY_SMA','1WPG_TG1', '2A06_SMA','4UHL_VFV','3N8K_D1X','5FV9_Y6W','3N75_G4P','3B8H_NAD','3B82_NAD','3B78_NAD']
 	for file in files:
 		if(file not in files_done) and file not in naccess_error:
 			print("==> Featurizing : ", file)
 			calc_features(input_dir, file, output_dir)
+
+		with open("not_present.txt", "w") as f:
+			temp = [i+"\n" for i in errors]
+			f.writelines(temp)
+			f.flush()
+			f.close()
+		with open("nacces_not_present.txt", "w") as f:
+			temp = [i+"\n" for i in naccess_errors]
+			f.writelines(temp)
+			f.flush()
+			f.close()
