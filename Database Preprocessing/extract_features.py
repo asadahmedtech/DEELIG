@@ -31,7 +31,7 @@ class Featurizer():
                  named_properties=None, save_molecule_codes=True,
                  custom_properties=None, smarts_properties=None,
                  smarts_labels=None, protein_properties = True,
-                 path = '../../raw_data/protein_pdb_featurized/'):
+                 path = '/home/binnu/Asad/dataset/pdbbind/protein_pdb_featurized/'):
 
         """Creates Featurizer with specified types of features. Elements of a
         feature vector will be in a following order: atom type encoding
