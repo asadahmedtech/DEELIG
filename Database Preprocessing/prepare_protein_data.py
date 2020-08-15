@@ -75,7 +75,7 @@ def calc_features(PATH, pdb_ligand_ID, OUTPATH):
 		naccess_errors.append(PDB_id)
 		print("NACCESS NOT PRESENT: ", PDB_id)
 		return 
-		
+
 	#NACCESS Analysis for SASA
 	try:
 		rsa, asa = run_naccess(model, filename)
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 	# Add the PDB IDs of file which NACCESS gives segmentation fault.
 	naccess_error = ['5FQD_LVY', '4EJG_NCT', '3N7A_FA1' , '2IJ7_TPF', '4EJH_0QA','2QJY_SMA','1WPG_TG1', '2A06_SMA','4UHL_VFV','3N8K_D1X','5FV9_Y6W','3N75_G4P','3B8H_NAD','3B82_NAD','3B78_NAD']
 	for file in files:
-		if(file not in files_done) and file not in naccess_error:
+		if(file not in files_done) and file not in naccess_error and file.lower() not in not_present_files and file.lower() not in naccess_not_present_files:
 			print("==> Featurizing : ", file)
 			calc_features(input_dir, file, output_dir)
 
