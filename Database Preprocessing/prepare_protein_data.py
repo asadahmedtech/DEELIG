@@ -149,6 +149,6 @@ if __name__ == '__main__':
 	# Add the PDB IDs of file which NACCESS gives segmentation fault.
 	naccess_error = ['5FQD_LVY', '4EJG_NCT', '3N7A_FA1' , '2IJ7_TPF', '4EJH_0QA','2QJY_SMA','1WPG_TG1', '2A06_SMA','4UHL_VFV','3N8K_D1X','5FV9_Y6W','3N75_G4P','3B8H_NAD','3B82_NAD','3B78_NAD']
 	for file in files:
-		if(file not in files_done) and file.split('_')[0] + '_' + file.split('_')[1] not in naccess_error:
+		if(file not in files_done) and file not in naccess_error:
 			print("==> Featurizing : ", file)
 			calc_features(input_dir, file, output_dir)
