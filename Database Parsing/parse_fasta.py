@@ -1,5 +1,5 @@
-PATH = '/home/binnu/Asad/dataset/new_db/fasta_single.txt'
-OUT_PATH = '/home/binnu/Asad/dataset/new_db/fasta_single_formatted.txt'
+PATH = '../FASTA/single_fasta.txt'
+OUT_PATH = '../FASTA/fasta_single_formatted.txt'
 
 file = open(PATH, "r")
 data = file.readlines()

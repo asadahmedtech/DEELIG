@@ -26,18 +26,23 @@ SS_Labels = {'H' : 1, 'B' : 2, 'E' : 3, 'G' : 4, 'I' : 5, 'T' : 6, 'S' : 7, '-' 
 """
 RSA_Threshold = 25
 
-def parse_PSSM(file, path = '/home/binnu/Asad/dataset/new_db/pssm/'):
+def parse_PSSM(file, path = '/home/binnu/Asad/dataset/pdbbind/pssm/'):
 	pssm = {}
-	with open(os.path.join(path, file), 'r') as f:
-		lines = f.readlines()
-		# lines = [i.split() if(len(i.split()) == 44) for i in lines]
-		lines_new = []
-		for i in lines:
-			i = i.split()
-			if(len(i) == 44):
-				lines_new.append(i)
-		lines_new = [i[:22] for i in lines_new]
-	
+	file = "outpssm_" + file
+	try:
+		with open(os.path.join(path, file), 'r') as f:
+			lines = f.readlines()
+			# lines = [i.split() if(len(i.split()) == 44) for i in lines]
+			lines_new = []
+			for i in lines:
+				i = i.split()
+				if(len(i) == 44):
+					lines_new.append(i)
+			lines_new = [i[:22] for i in lines_new]
+	except Exception as e:
+		print("NOT PRESENT: ", file)
+		return None
+
 	for i in lines_new:
 		scores = i[2:]
 		scores = [int(temp_i) for temp_i in scores]
@@ -70,8 +75,10 @@ def calc_features(PATH, pdb_ligand_ID, OUTPATH):
 	for model in structure:
 		for chain in model:
 			# Modify Output PDB to compute all the chains in a single complex.
-			pssm_ID = chain.get_full_id()[0][:4].upper() + '_' + chain.get_full_id()[2]
+			pssm_ID = chain.get_full_id()[0][:4].upper() + '_' + str(chain.get_full_id()[1]+1)
 			pssm = parse_PSSM(pssm_ID)
+			if pssm == None:
+				continue
 			start = True
 			gap = 0
 			idx_prev = 0
