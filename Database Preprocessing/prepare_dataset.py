@@ -87,39 +87,39 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
 
 def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "mol2", ligand_format = "mol2"):
     
-    #pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID.split("_")[0].lower() + "_pocket.%s"%(pocket_format))))
+    pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID + "_pocket.%s"%(pocket_format))))
     try:
         ligand = next(pybel.readfile(ligand_format, os.path.join(ligand_dir, ID + '_ligand.mol2')))
     except Exception as e:
         ligand_404.append(ID)
         return
-    #try:        
-        #pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
-    #except EOFError:
-    #    print("EOF ERROR ON : ", ID)
-    #    return
-    #ligand_coords, ligand_features = featurizer.get_features(ligand, None ,molcode=1)
+    try:        
+        pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
+    except EOFError:
+       print("EOF ERROR ON : ", ID)
+       return
+    ligand_coords, ligand_features = featurizer.get_features(ligand, None ,molcode=1)
         
-    ligand_features = create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADMET)
-    #print(ligand_features.shape)    
-    #centroid = ligand_coords.mean(axis=0)
-    #ligand_coords -= centroid
-    #pocket_coords -= centroid
+    # ligand_features = create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADMET)
+    # print(ligand_features.shape)    
+    centroid = ligand_coords.mean(axis=0)
+    ligand_coords -= centroid
+    pocket_coords -= centroid
 
-        # data = np.concatenate(
-        #     (np.concatenate((ligand_coords, pocket_coords)),
-        #     np.concatenate((ligand_features, pocket_features))),
-        #     axis=1,
-        # )
+        data = np.concatenate(
+            (np.concatenate((ligand_coords, pocket_coords)),
+            np.concatenate((ligand_features, pocket_features))),
+            axis=1,
+        )
     
-    #data_pocket = np.concatenate((pocket_coords, pocket_features), axis=1)
+    data_pocket = np.concatenate((pocket_coords, pocket_features), axis=1)
     
-    #dataset_pocket = datafile_pocket.create_dataset(ID, data=data_pocket, shape=data_pocket.shape,dtype='float32', compression='lzf')
-    #dataset_pocket.attrs['affinity'] = affinities.loc[ID]
-    if(ligand_features != []):
-        print(ligand_features.shape)
-        dataset_ligand = datafile_ligand.create_dataset(ID, data=ligand_features, shape=ligand_features.shape, dtype='float32')
-        dataset_ligand.attrs['affinity'] = affinities.loc[ID]
+    dataset_pocket = datafile_pocket.create_dataset(ID, data=data_pocket, shape=data_pocket.shape,dtype='float32', compression='lzf')
+    dataset_pocket.attrs['affinity'] = affinities.loc[ID]
+    # if(ligand_features != []):
+    #     print(ligand_features.shape)
+    #     dataset_ligand = datafile_ligand.create_dataset(ID, data=ligand_features, shape=ligand_features.shape, dtype='float32')
+    #     dataset_ligand.attrs['affinity'] = affinities.loc[ID]
     
         print("===> File dumped : ", ID)
     else:
@@ -136,11 +136,11 @@ if __name__ == '__main__':
     featurefile_path_ADMET = '/home/binnu/Asad/dataset/pdbbind/ligand_ADMET.csv'
     affinities = '/home/binnu/Asad/dataset/pdbbind/affinity.csv'
 
-    #global featurizer, charge_idx
-    #featurizer = Featurizer()
-    #charge_idx = featurizer.FEATURE_NAMES.index('partialcharge')
+    global featurizer, charge_idx
+    featurizer = Featurizer()
+    charge_idx = featurizer.FEATURE_NAMES.index('partialcharge')
     
-    # files = os.listdirs(pocket_dir)
+    files = os.listdirs(pocket_dir)
 
     print("=> Loading Affinity csv")
     if(affinities is not None):
@@ -154,8 +154,8 @@ if __name__ == '__main__':
     else:
         affinities = None
 
-    print("=> Loading PADEL csv")
-    ligand_featurefile_PADEL = pd.read_csv(featurefile_path_PADEL, index_col ='Name')
+    # print("=> Loading PADEL csv")
+    # ligand_featurefile_PADEL = pd.read_csv(featurefile_path_PADEL, index_col ='Name')
     # ligand_featurefile_ADMET = pd.read_csv(featurefile_path_ADMET, index_col = 'molecule')
     print("=> Loading ADMET csv")
     ligand_featurefile_ADMET = open(featurefile_path_ADMET, "r")
@@ -164,10 +164,10 @@ if __name__ == '__main__':
     for lines in csv.reader(ligand_featurefile_ADMET, delimiter=","):
         if "molecule" in lines or '' in lines:
             ligand_errors.append(lines[0])
-            ligand_ADMET_dic[lines[0]] = [0 for i in range(52)]
+            # ligand_ADMET_dic[lines[0]] = [0 for i in range(52)]
             pass
         else:
-            ligand_ADMET_dic[lines[0]] = lines
+            # ligand_ADMET_dic[lines[0]] = lines
     with open("ligand_errors_admet.txt","w") as f:
         ligand_errors = [i+"\n" for i in ligand_errors]
         f.writelines(ligand_errors)
