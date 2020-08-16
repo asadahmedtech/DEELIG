@@ -167,6 +167,7 @@ if __name__ == '__main__':
             # ligand_ADMET_dic[lines[0]] = [0 for i in range(52)]
             pass
         else:
+            pass
             # ligand_ADMET_dic[lines[0]] = lines
     with open("ligand_errors_admet.txt","w") as f:
         ligand_errors = [i+"\n" for i in ligand_errors]
