@@ -120,11 +120,11 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
     #     print(ligand_features.shape)
     #     dataset_ligand = datafile_ligand.create_dataset(ID, data=ligand_features, shape=ligand_features.shape, dtype='float32')
     #     dataset_ligand.attrs['affinity'] = affinities.loc[ID]
-    
-        print("===> File dumped : ", ID)
-    else:
-        print("===> Error : ", ID)
-        error.append(ID)
+    # 
+    #     print("===> File dumped : ", ID)
+    # else:
+    #     print("===> Error : ", ID)
+    #     error.append(ID)
 
 
 if __name__ == '__main__':
