@@ -106,11 +106,11 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
     ligand_coords -= centroid
     pocket_coords -= centroid
 
-        data = np.concatenate(
-            (np.concatenate((ligand_coords, pocket_coords)),
-            np.concatenate((ligand_features, pocket_features))),
-            axis=1,
-        )
+    # data = np.concatenate(
+    #     (np.concatenate((ligand_coords, pocket_coords)),
+    #     np.concatenate((ligand_features, pocket_features))),
+    #     axis=1,
+    # )
     
     data_pocket = np.concatenate((pocket_coords, pocket_features), axis=1)
     
