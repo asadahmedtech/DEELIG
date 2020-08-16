@@ -11,6 +11,7 @@ import os
 ligand_PADEL_error = []
 ligand_ADMET_error = []
 ligand_404 = []
+pocket_404 = []
 def input_file(path):
     """Check if input file exists."""
 
@@ -95,8 +96,9 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
         return
     try:        
         pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
-    except EOFError:
+    except Exception as e:
        print("EOF ERROR ON : ", ID)
+       pocket_404.append(ID)
        return
     ligand_coords, ligand_features = featurizer.get_features(ligand, None ,molcode=1)
         
@@ -241,6 +243,11 @@ if __name__ == '__main__':
 
     with open("ligand_errors_mol2_run.txt","w") as f:
         ligand_404 = [i+"\n" for i in ligand_404]
+        f.writelines(ligand_404)
+        f.flush()
+        f.close()
+    with open("pocket404.txt","w") as f:
+        ligand_404 = [i+"\n" for i in pocket_404]
         f.writelines(ligand_404)
         f.flush()
         f.close()
