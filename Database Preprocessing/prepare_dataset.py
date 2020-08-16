@@ -85,7 +85,7 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
         return []
     return d
 
-def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "mol2", ligand_format = "mol2"):
+def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "pdb", ligand_format = "mol2"):
     
     pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID + "_pocket.%s"%(pocket_format))))
     try:
@@ -128,7 +128,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
 
 
 if __name__ == '__main__':
-    pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_mol2/'
+    pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_pdb/'
     ligand_dir = '/home/binnu/Asad/dataset/pdbbind/ligand_mol2/'
     output_dir = "/home/binnu/Asad/dataset/pdbbind/processed_data/"
     protein_feature_path = '/home/binnu/Asad/dataset/pdbbind/protein_pdb_featurized/'
