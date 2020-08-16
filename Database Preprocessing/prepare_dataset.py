@@ -199,6 +199,13 @@ if __name__ == '__main__':
         file_done = [i[:-1] for i in file_done]
     if(file_done != []):
        once = False
+    not_present_files = open("not_present.txt", 'r')
+	not_present_files = not_present_files.readlines()
+	not_present_files = [i[:-1] for i in not_present_files]
+
+	naccess_not_present_files = open("nacces_not_present.txt", 'r')
+	naccess_not_present_files = naccess_not_present_files.readlines()
+	naccess_not_present_files = [i[:-1] for i in naccess_not_present_files]
     naccess_error = ['5FQD_LVY', '4EJG_NCT', '3N7A_FA1' , '2IJ7_TPF', '4EJH_0QA','2QJY_SMA','1WPG_TG1', '2A06_SMA','4UHL_VFV','3N8K_D1X','5FV9_Y6W','3N75_G4P','3B8H_NAD','3B82_NAD','3B78_NAD']
     for ID in pdb_ligand_ID :
         if(once):
@@ -209,13 +216,13 @@ if __name__ == '__main__':
             #datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "a")
             datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "a")
 
-        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and ID not in ligand_errors):
+        if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and ID not in ligand_errors and ID not in not_present_files and ID not in naccess_not_present_files):
             print("==> Creating Feature file : ", ID, iterr)
             create_features(pocket_dir, ligand_dir, ID, datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_ADMET_dic)
             file_done.append(ID + '\n')
             with open('file_done.txt', 'w') as f:
                 f.writelines(file_done)
-            iterr += 1
+            iterr += 1 
 
        # datafile_pocket.close()
         datafile_ligand.close()
