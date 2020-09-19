@@ -86,7 +86,7 @@ def create_ligand_features(ID, ligand_featurefile_PADEL, ligand_featurefile_ADME
         return []
     return d
 
-def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "pdb", ligand_format = "mol2"):
+def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, ligand_featurefile_PADEL, ligand_featurefile_ADMET, pocket_format = "mol2", ligand_format = "mol2"):
     
     pocket = next(pybel.readfile(pocket_format, os.path.join(pocket_dir, ID + "_pocket.%s"%(pocket_format))))
     try:
@@ -130,7 +130,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
 
 
 if __name__ == '__main__':
-    pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_pdb/'
+    pocket_dir = '/home/binnu/Asad/dataset/pdbbind/pocket_mol2/'
     ligand_dir = '/home/binnu/Asad/dataset/pdbbind/ligand_mol2/'
     output_dir = "/home/binnu/Asad/dataset/pdbbind/processed_data/"
     protein_feature_path = '/home/binnu/Asad/dataset/pdbbind/protein_pdb_featurized/'
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     segmentation_fault = ['2QJY_SMA', '4DEL_PGH']
     once = True
     file_done = []
-    with open('file_done.txt', 'r') as f:
+    with open('file_done_mol2.txt', 'r') as f:
         file_done = f.readlines()
         file_done = [i[:-1] for i in file_done]
     if(file_done != []):
@@ -214,11 +214,11 @@ if __name__ == '__main__':
     naccess_error = ['5FQD_LVY', '4EJG_NCT', '3N7A_FA1' , '2IJ7_TPF', '4EJH_0QA','2QJY_SMA','1WPG_TG1', '2A06_SMA','4UHL_VFV','3N8K_D1X','5FV9_Y6W','3N75_G4P','3B8H_NAD','3B82_NAD','3B78_NAD']
     for ID in pdb_ligand_ID :
         if(once):
-            datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "w")
+            datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket_mol2.hdf'), "w")
             # datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "w")
             once = False
         else:
-            datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket.hdf'), "a")
+            datafile_pocket = h5py.File(os.path.join(output_dir, 'data_pocket_mol2.hdf'), "a")
             # datafile_ligand = h5py.File(os.path.join(output_dir, 'data_ligand.hdf'), "a")
 
         if(ID not in segmentation_fault and ID not in file_done and ID not in naccess_error and ID not in ligand_errors and ID not in not_present_files and ID not in naccess_not_present_files):
@@ -232,21 +232,21 @@ if __name__ == '__main__':
         datafile_pocket.close()
         # datafile_ligand.close()
     
-    with open("ligand_errors_padel.txt","w") as f:
+    with open("ligand_errors_padel1.txt","w") as f:
         f.writelines(ligand_PADEL_error)
         f.flush()
         f.close()
-    with open("ligand_errors_admet_run.txt","w") as f:
+    with open("ligand_errors_admet_run1.txt","w") as f:
         f.writelines(ligand_ADMET_error)
         f.flush()
         f.close()
 
-    with open("ligand_errors_mol2_run.txt","w") as f:
+    with open("ligand_errors_mol2_run1.txt","w") as f:
         ligand_404 = [i+"\n" for i in ligand_404]
         f.writelines(ligand_404)
         f.flush()
         f.close()
-    with open("pocket404.txt","w") as f:
+    with open("pocket4041.txt","w") as f:
         ligand_404 = [i+"\n" for i in pocket_404]
         f.writelines(ligand_404)
         f.flush()
