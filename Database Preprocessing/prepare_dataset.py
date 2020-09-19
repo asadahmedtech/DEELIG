@@ -97,7 +97,7 @@ def create_features(pocket_dir, ligand_dir, ID,  datafile_ligand, affinities, li
     try:        
         pocket_coords, pocket_features = featurizer.get_features(pocket, ID ,molcode=-1)
     except Exception as e:
-       print("EOF ERROR ON : ", ID)
+       print("EOF ERROR ON : ", ID, str(e))
        pocket_404.append(ID)
        return
     ligand_coords, ligand_features = featurizer.get_features(ligand, None ,molcode=1)
