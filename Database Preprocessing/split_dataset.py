@@ -7,9 +7,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Split dataset int training,'
                                  ' validation and test sets.')
-parser.add_argument('--input_path', '-i', default='../../processed_data/',
+parser.add_argument('--input_path', '-i', default='../../processed_data',
                     help='directory with pdbbind dataset')
-parser.add_argument('--output_path', '-o', default='../../dataset/',
+parser.add_argument('--output_path', '-o', default='../../dataset',
                     help='directory to store output files')
 parser.add_argument('--size_val', '-s', type=int, default=500,
                     help='number of samples in the validation set')
