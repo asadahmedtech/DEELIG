@@ -35,7 +35,7 @@ with h5py.File('%s/training_set_pocket.hdf' % args.output_path, 'w') as g_p, \
                 ds_p = h_p.create_dataset(pdb_id, data=f_p[pdb_id])
                 ds_p.attrs['affinity'] = f_p[pdb_id].attrs['affinity']
                 ds_l = h_l.create_dataset(pdb_id, data=f_l[pdb_id])
-                ds_l.attrs['affinity'] = f_l[pdb_id].attrs['affinity']]
+                ds_l.attrs['affinity'] = f_l[pdb_id].attrs['affinity']
             else:
                 print(pdb_id)
         for pdb_id in data_shuffled[args.size_val:args.size_test+args.size_val]:
