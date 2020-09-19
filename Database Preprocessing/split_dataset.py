@@ -13,7 +13,7 @@ parser.add_argument('--output_path', '-o', default='../../dataset',
                     help='directory to store output files')
 parser.add_argument('--size_val', '-s', type=int, default=500,
                     help='number of samples in the validation set')
-parser.add_argument('--size_test', '-t', type=int, default=200,
+parser.add_argument('--size_test', '-t', type=int, default=500,
                     help='number of samples in the validation set')
 args = parser.parse_args()
 
