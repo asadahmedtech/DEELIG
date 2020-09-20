@@ -126,18 +126,18 @@ for dataset_name in datasets:
 
             NAN_check = False
 
-            # if(torch.isnan(torch.Tensor(pocket_dataset)).any() or torch.isnan(torch.Tensor(ligand_dataset)).any()):
-            #   print(pdb_id)
+            if(torch.isnan(torch.Tensor(pocket_dataset)).any() or torch.isnan(torch.Tensor(ligand_dataset)).any()):
+              print(pdb_id)
 
 
-            # for i in pocket_dataset:
+            for i in pocket_dataset:
 
-            #   if(True in list(np.isnan(i))):
-            #     NAN_check = True
-            #     print(pdb_id)
-            # if(True in list(np.isnan(ligand_dataset))):
-            #   NAN_check = True
-            #   print(pdb_id)
+              if(True in list(np.isnan(i))):
+                NAN_check = True
+                print(pdb_id)
+            if(True in list(np.isnan(ligand_dataset))):
+              NAN_check = True
+              print(pdb_id)
             if(pdb_id not in NaN_present):
               coords[dataset_name].append(pocket_dataset[:, :3])
               features[dataset_name].append({'pocket': pocket_dataset[:, 3:], 'ligand':ligand_dataset})
@@ -170,7 +170,7 @@ print('\n---- DATA ----\n')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print('==> Building network..')
-net = net2()
+net = net1()
 if torch.cuda.device_count() > 1:
   print("Let's use", torch.cuda.device_count(), "GPUs!")
   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
