@@ -363,7 +363,7 @@ class netpdb(nn.Module):
     def forward(self, x_p, x_l):
         x_p = self.features_pocket(x_p)
         x_l = self.features_ligand(x_l)
-        print(x_p.shape, x_l.shape)
+        # print(x_p.shape, x_l.shape)
         
         x_p = x_p.view(x_p.size()[0], 128*(8**3))
         x = torch.cat((x_p, x_l),1)
