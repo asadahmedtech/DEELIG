@@ -315,7 +315,7 @@ class netpdb(nn.Module):
         self.features_pocket = nn.Sequential(
             nn.Conv3d(43, 64, 5, padding=(3,3,3)),
             nn.ReLU(inplace = True),
-            # nn.MaxPool3d(2, padding=(1,1,1)),
+            nn.MaxPool3d(2, padding=(1,1,1)),
             nn.Conv3d(64, 128, 5, padding=(3,3,3)),
             nn.ReLU(inplace = True),
             nn.MaxPool3d(2, padding=(1,1,1)),
@@ -333,7 +333,7 @@ class netpdb(nn.Module):
         self.features_ligand = nn.Sequential(
             nn.Linear(11496, 1000),
             nn.ReLU(inplace=True),
-            # nn.Dropout(0.5),
+            nn.Dropout(0.5),
             nn.Linear(1000, 200),
             nn.ReLU(inplace=True),
             # nn.Dropout(0.5),
@@ -344,7 +344,7 @@ class netpdb(nn.Module):
         self.regressor = nn.Sequential(
             nn.Linear(128*(13**3)+ 200, 500),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.3),
+            nn.Dropout(0.5),
             # nn.Linear(15000, 7000),
             # nn.ReLU(inplace=True),
             # nn.Dropout(0.5),
@@ -363,7 +363,7 @@ class netpdb(nn.Module):
     def forward(self, x_p, x_l):
         x_p = self.features_pocket(x_p)
         x_l = self.features_ligand(x_l)
-        # print(x_p.shape, x_l.shape)
+        print(x_p.shape, x_l.shape)
         
         x_p = x_p.view(x_p.size()[0], 128*(13**3))
         x = torch.cat((x_p, x_l),1)

@@ -86,9 +86,9 @@ tr_group.add_argument('--learning_rate', default=1e-5, type=float,
                       help='learning rate')
 tr_group.add_argument('--batch_size', default=20, type=int,
                       help='batch size')
-tr_group.add_argument('--num_epochs', default=35, type=int,
+tr_group.add_argument('--num_epochs', default=20, type=int,
                       help='number of epochs')
-tr_group.add_argument('--num_checkpoints', dest='to_keep', default=20, type=int,
+tr_group.add_argument('--num_checkpoints', dest='to_keep', default=4, type=int,
                       help='number of checkpoints to keep')
 tr_group.add_argument('--resume', default=0, type=bool,
                       help='To reumse the training')
@@ -147,6 +147,7 @@ for dataset_name in datasets:
 
     ids[dataset_name] = np.array(ids[dataset_name])
     affinity[dataset_name] = np.reshape(affinity[dataset_name], (-1, 1))
+    print(len(list(affinity.keys())))
 
 for dataset_name in datasets:
     for i in range(len(affinity[dataset_name])):
@@ -287,7 +288,46 @@ def store_results(ID,epoch, coords, features, affinity, std, rot = 0):
 for i in range(start_epoch, args.num_epochs):
   for j in (args.rotations):
     
-    train(4,i ,coords, features, affinity, j, std, lr= 1e-5)
+    train(1,i ,coords, features, affinity, j, std, lr= 1e-5)
+    test('validation', coords, features, affinity, std)
+  store_results(1,i, coords, features, affinity, std)
+
+test('test', coords, features, affinity, std)
+
+for i in range(start_epoch, args.num_epochs):
+  for j in (args.rotations):
+    
+    train(3,i ,coords, features, affinity, j, std, lr= 1e-6)
+    test('validation', coords, features, affinity, std)
+  store_results(3,i, coords, features, affinity, std)
+
+test('test', coords, features, affinity, std)
+
+
+print('==> Building network..')
+net = net()
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+  net = nn.DataParallel(net,  device_ids = list(range(torch.cuda.device_count()))[:1])
+
+criterion = nn.MSELoss()
+net = net.to(device)
+
+start_epoch, start_step = 0, 0
+for i in range(start_epoch, args.num_epochs):
+  for j in (args.rotations):
+    
+    train(2,i ,coords, features, affinity, j, std, lr= 1e-5)
+    test('validation', coords, features, affinity, std)
+  store_results(2,i, coords, features, affinity, std)
+
+test('test', coords, features, affinity, std)
+
+for i in range(start_epoch, args.num_epochs):
+  for j in (args.rotations):
+    
+    train(4,i ,coords, features, affinity, j, std, lr= 1e-6)
     test('validation', coords, features, affinity, std)
   store_results(4,i, coords, features, affinity, std)
 
