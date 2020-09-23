@@ -308,3 +308,66 @@ class trail_net(nn.Module):
         x = x.view(x.size()[0], self.flatten_size)
         x = self.regressor(x)
         return x
+
+class netpdb(nn.Module):
+    def __init__(self, num_classes=1):
+        super(net, self).__init__()
+        self.features_pocket = nn.Sequential(
+            nn.Conv3d(43, 64, 5, padding=(3,3,3)),
+            nn.ReLU(inplace = True),
+            # nn.MaxPool3d(2, padding=(1,1,1)),
+            nn.Conv3d(64, 128, 5, padding=(3,3,3)),
+            nn.ReLU(inplace = True),
+            # nn.MaxPool3d(2, padding=(1,1,1)),
+            nn.BatchNorm3d(128),
+            # nn.Conv3d(128, 256, 5, padding=(1,1,1)),
+            # nn.ReLU(inplace = True),
+            # nn.MaxPool3d(2),
+            # nn.BatchNorm3d(256),
+            # nn.Conv3d(256, 512, 3, padding=(1,1,1)),
+            # nn.ReLU(inplace = True),
+            # nn.MaxPool3d(2),
+            # nn.BatchNorm3d(512),
+        )
+
+        self.features_ligand = nn.Sequential(
+            nn.Linear(11496, 1000),
+            nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            nn.Linear(1000, 200),
+            nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            # nn.Linear(5000, 2000),
+            # nn.ReLU(inplace=True),
+        )
+
+        self.regressor = nn.Sequential(
+            nn.Linear(256*(3**3)+ 200, 500),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.3),
+            # nn.Linear(15000, 7000),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            # nn.Linear(7000, 2000),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            # nn.Linear(7000, 500),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            # nn.Linear(500, 200),
+            # nn.ReLU(inplace=True),
+            # nn.Dropout(0.5),
+            nn.Linear(500, 1)
+        )
+
+    def forward(self, x_p, x_l):
+        x_p = self.features_pocket(x_p)
+        x_l = self.features_ligand(x_l)
+        print(x_p.shape, x_l.shape)
+        
+        x_p = x_p.view(x_p.size()[0], 256*(3**3))
+        x = torch.cat((x_p, x_l),1)
+        # print(x.shape)
+        del x_p, x_l
+        x = self.regressor(x)
+        return x

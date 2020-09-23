@@ -170,7 +170,7 @@ print('\n---- DATA ----\n')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print('==> Building network..')
-net = net()
+net = netpdb()
 if torch.cuda.device_count() > 1:
   print("Let's use", torch.cuda.device_count(), "GPUs!")
   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
@@ -286,7 +286,7 @@ def store_results(ID,epoch, coords, features, affinity, std, rot = 0):
 for i in range(start_epoch, args.num_epochs):
   for j in (args.rotations):
     
-    train(4,i ,coords, features, affinity, j, std, lr= 1e-4)
+    train(4,i ,coords, features, affinity, j, std, lr= 1e-5)
     test('validation', coords, features, affinity, std)
   store_results(4,i, coords, features, affinity, std)
 
