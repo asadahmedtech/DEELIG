@@ -342,7 +342,7 @@ class netpdb(nn.Module):
         )
 
         self.regressor = nn.Sequential(
-            nn.Linear(256*(3**3)+ 200, 500),
+            nn.Linear(128*(13**3)+ 200, 500),
             nn.ReLU(inplace=True),
             nn.Dropout(0.3),
             # nn.Linear(15000, 7000),
