@@ -318,7 +318,7 @@ class netpdb(nn.Module):
             # nn.MaxPool3d(2, padding=(1,1,1)),
             nn.Conv3d(64, 128, 5, padding=(3,3,3)),
             nn.ReLU(inplace = True),
-            # nn.MaxPool3d(2, padding=(1,1,1)),
+            nn.MaxPool3d(2, padding=(1,1,1)),
             nn.BatchNorm3d(128),
             # nn.Conv3d(128, 256, 5, padding=(1,1,1)),
             # nn.ReLU(inplace = True),
