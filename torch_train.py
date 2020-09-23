@@ -115,6 +115,7 @@ for dictionary in [ids, affinity, coords, features]:
     for dataset_name in datasets:
         dictionary[dataset_name] = []
 
+NaN_present = ['2haw', '2o1c', '4lv1', '4mnv']
 for dataset_name in datasets:
     pocket_dataset_path = os.path.join(args.input_dir, '%s_set_pocket.hdf' % dataset_name)
     ligand_dataset_path = os.path.join(args.input_dir, '%s_set_ligand.hdf' % dataset_name)
@@ -126,18 +127,18 @@ for dataset_name in datasets:
 
             NAN_check = False
 
-            if(torch.isnan(torch.Tensor(pocket_dataset)).any() or torch.isnan(torch.Tensor(ligand_dataset)).any()):
-              print(pdb_id)
+            # if(torch.isnan(torch.Tensor(pocket_dataset)).any() or torch.isnan(torch.Tensor(ligand_dataset)).any()):
+            #   print(pdb_id)
 
 
-            for i in pocket_dataset:
+            # for i in pocket_dataset:
 
-              if(True in list(np.isnan(i))):
-                NAN_check = True
-                print(pdb_id)
-            if(True in list(np.isnan(ligand_dataset))):
-              NAN_check = True
-              print(pdb_id)
+            #   if(True in list(np.isnan(i))):
+            #     NAN_check = True
+            #     print(pdb_id)
+            # if(True in list(np.isnan(ligand_dataset))):
+            #   NAN_check = True
+            #   print(pdb_id)
             if(pdb_id not in NaN_present):
               coords[dataset_name].append(pocket_dataset[:, :3])
               features[dataset_name].append({'pocket': pocket_dataset[:, 3:], 'ligand':ligand_dataset})

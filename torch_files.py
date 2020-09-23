@@ -311,7 +311,7 @@ class trail_net(nn.Module):
 
 class netpdb(nn.Module):
     def __init__(self, num_classes=1):
-        super(net, self).__init__()
+        super(netpdb, self).__init__()
         self.features_pocket = nn.Sequential(
             nn.Conv3d(43, 64, 5, padding=(3,3,3)),
             nn.ReLU(inplace = True),
