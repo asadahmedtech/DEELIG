@@ -147,7 +147,7 @@ for dataset_name in datasets:
 
     ids[dataset_name] = np.array(ids[dataset_name])
     affinity[dataset_name] = np.reshape(affinity[dataset_name], (-1, 1))
-    print(len(list(affinity.keys())))
+    print(len(affinity[dataset_name]))
 
 for dataset_name in datasets:
     for i in range(len(affinity[dataset_name])):
@@ -205,7 +205,7 @@ def train(ID, epoch, coords, features, affinity, rot, std, lr = 1e-5):
   if(ID in [0, 3, 4]):
     optimizer = optim.Adam(params, lr =lr)#, momentum=0.9)#, weight_decay=5e-4)
   elif(ID in [1, 2]):
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
+    optimizer = torch.optim.SGD(net.parameters(), lr=0.1, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr = 1e-6, max_lr = 1e-3, mode = 'exp_range')
   
   for batch_idx in range(len(dataloader)):
