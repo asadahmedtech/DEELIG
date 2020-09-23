@@ -342,7 +342,7 @@ class netpdb(nn.Module):
         )
 
         self.regressor = nn.Sequential(
-            nn.Linear(128*(13**3)+ 200, 500),
+            nn.Linear(128*(8**3)+ 200, 500),
             nn.ReLU(inplace=True),
             nn.Dropout(0.5),
             # nn.Linear(15000, 7000),
@@ -365,7 +365,7 @@ class netpdb(nn.Module):
         x_l = self.features_ligand(x_l)
         print(x_p.shape, x_l.shape)
         
-        x_p = x_p.view(x_p.size()[0], 128*(13**3))
+        x_p = x_p.view(x_p.size()[0], 128*(8**3))
         x = torch.cat((x_p, x_l),1)
         # print(x.shape)
         del x_p, x_l
