@@ -31,6 +31,10 @@ from torch.utils.data import DataLoader
 from torch.nn.utils import clip_grad_norm_
 import gc
 
+import ray
+from ray import tune
+from ray.tune.schedulers import ASHAScheduler
+
 import time
 timestamp = time.strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -171,96 +175,96 @@ print('\n---- DATA ----\n')
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-print('==> Building network..')
-net = pdbbindnet()
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  net = nn.DataParallel(net,  device_ids = list(range(torch.cuda.device_count()))[:1])
+# print('==> Building network..')
+# net = pdbbindnet()
+# if torch.cuda.device_count() > 1:
+#   print("Let's use", torch.cuda.device_count(), "GPUs!")
+#   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+#   net = nn.DataParallel(net,  device_ids = list(range(torch.cuda.device_count()))[:1])
 
-criterion = nn.MSELoss()
-net = net.to(device)
+# criterion = nn.MSELoss()
+# net = net.to(device)
 
-start_epoch, start_step = 0, 0
+# start_epoch, start_step = 0, 0
        
-if args.resume:
-    if(os.path.isfile('../save/network.ckpt')):
-        net.load_state_dict(torch.load('../save/network.ckpt'))
-        print("=> Network : loaded")
+# if args.resume:
+#     if(os.path.isfile('../save/network.ckpt')):
+#         net.load_state_dict(torch.load('../save/network.ckpt'))
+#         print("=> Network : loaded")
     
-    if(os.path.isfile("../save/info.txt")):
-        with open("../save/info.txt", "r") as f:
-            start_epoch, start_step = (int(i) for i in str(f.read()).split(" "))
-print("=> Network : prev epoch found")
+#     if(os.path.isfile("../save/info.txt")):
+#         with open("../save/info.txt", "r") as f:
+#             start_epoch, start_step = (int(i) for i in str(f.read()).split(" "))
+# print("=> Network : prev epoch found")
 
-def train(ID, epoch, coords, features, affinity, rot, std, lr = 1e-5):
-  trainset = DB(coords, features, affinity, 'training', rot, std)
-  dataloader = torch.utils.data.DataLoader(trainset, batch_size=28, shuffle=True)
-  dataloader = iter(dataloader)
-  print('\nID : %d | Epoch: %d | Rotations: %d ' % (ID, epoch, rot))
+# def train(ID, epoch, coords, features, affinity, rot, std, lr = 1e-5):
+#   trainset = DB(coords, features, affinity, 'training', rot, std)
+#   dataloader = torch.utils.data.DataLoader(trainset, batch_size=28, shuffle=True)
+#   dataloader = iter(dataloader)
+#   print('\nID : %d | Epoch: %d | Rotations: %d ' % (ID, epoch, rot))
 
-  train_loss, correct, total = 0, 0, 0
-  params = net.parameters()
+#   train_loss, correct, total = 0, 0, 0
+#   params = net.parameters()
 
-  if(ID in [0, 3, 4]):
-    optimizer = optim.Adam(params, lr =lr)#, momentum=0.9)#, weight_decay=5e-4)
-  elif(ID in [1, 2]):
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.1, momentum=0.9)
-    scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr = 1e-6, max_lr = 1e-3, mode = 'exp_range')
+#   if(ID in [0, 3, 4]):
+#     optimizer = optim.Adam(params, lr =lr)#, momentum=0.9)#, weight_decay=5e-4)
+#   elif(ID in [1, 2]):
+#     optimizer = torch.optim.SGD(net.parameters(), lr=0.1, momentum=0.9)
+#     scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr = 1e-6, max_lr = 1e-3, mode = 'exp_range')
   
-  for batch_idx in range(len(dataloader)):
+#   for batch_idx in range(len(dataloader)):
 
-    inputs_pocket, inputs_ligand, targets = next(dataloader)
-    inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
+#     inputs_pocket, inputs_ligand, targets = next(dataloader)
+#     inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
 
-    optimizer.zero_grad()
-    y_pred = net(inputs_pocket, inputs_ligand)
-    loss = criterion(y_pred, targets)
-    loss.backward()
+#     optimizer.zero_grad()
+#     y_pred = net(inputs_pocket, inputs_ligand)
+#     loss = criterion(y_pred, targets)
+#     loss.backward()
     
-    if ID in [0, 3, 4]:
-      optimizer.step()
-    elif ID in [1, 2]:
-      optimizer.step()
-      scheduler.step()
+#     if ID in [0, 3, 4]:
+#       optimizer.step()
+#     elif ID in [1, 2]:
+#       optimizer.step()
+#       scheduler.step()
 
-    train_loss += loss.item()
-    # NOTE : Logging here
-    total += targets.size(0)
+#     train_loss += loss.item()
+#     # NOTE : Logging here
+#     total += targets.size(0)
 
-    with open("../save/logs/train_loss_%d.log"%(ID), "a+") as lfile:
-      lfile.write("{}\n".format(train_loss / total))
+#     with open("../save/logs/train_loss_%d.log"%(ID), "a+") as lfile:
+#       lfile.write("{}\n".format(train_loss / total))
 
-    del inputs_pocket, inputs_ligand, targets
-    gc.collect()
-    torch.cuda.empty_cache()
+#     del inputs_pocket, inputs_ligand, targets
+#     gc.collect()
+#     torch.cuda.empty_cache()
 
     
 
-    with open("../save/info_%d.txt"%ID, "w+") as f:
-      f.write("{} {}".format(epoch, batch_idx))
+#     with open("../save/info_%d.txt"%ID, "w+") as f:
+#       f.write("{} {}".format(epoch, batch_idx))
 
-    progress_bar(batch_idx, len(dataloader), 'Loss: %.3f ' % (train_loss/(batch_idx+1)))
-  torch.save(net.state_dict(), '../save/%d-network-%d.ckpt'%(ID, epoch))
+#     progress_bar(batch_idx, len(dataloader), 'Loss: %.3f ' % (train_loss/(batch_idx+1)))
+#   torch.save(net.state_dict(), '../save/%d-network-%d.ckpt'%(ID, epoch))
 
-  print(train_loss)
+#   print(train_loss)
 
-def test(dataset_name, coords, features, affinity, std, rot = 0):
-  testset = DB(coords, features, affinity, dataset_name, rot, std)
-  dataloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False)
-  dataloader = iter(dataloader)
-  print('\n%s: %d | Rotations: %d ' % (dataset_name, 1, rot))
+# def test(dataset_name, coords, features, affinity, std, rot = 0):
+#   testset = DB(coords, features, affinity, dataset_name, rot, std)
+#   dataloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False)
+#   dataloader = iter(dataloader)
+#   print('\n%s: %d | Rotations: %d ' % (dataset_name, 1, rot))
 
-  val_loss = 0
-  inputs_pocket, inputs_ligand, targets = next(dataloader)
-  inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
-  y_pred = net(inputs_pocket, inputs_ligand)
-  loss = criterion(y_pred, targets)
-  val_loss += loss.item()
+#   val_loss = 0
+#   inputs_pocket, inputs_ligand, targets = next(dataloader)
+#   inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
+#   y_pred = net(inputs_pocket, inputs_ligand)
+#   loss = criterion(y_pred, targets)
+#   val_loss += loss.item()
 
-  print("validation loss : ", val_loss)
+#   print("validation loss : ", val_loss)
 
-def store_results(ID,epoch, coords, features, affinity, std, rot = 0):
+def store_results(ID, net, epoch, coords, features, affinity, std, rot = 0):
 
   predictions = []
   for dataset in ['training', 'validation', 'test']:
@@ -285,50 +289,221 @@ def store_results(ID,epoch, coords, features, affinity, std, rot = 0):
   predictions.to_csv('../save/csv/'+str(ID) + '_' + str(epoch) + '-predictions.csv', index=False)
 
 
-for i in range(start_epoch, args.num_epochs):
-  for j in (args.rotations):
+# for i in range(start_epoch, args.num_epochs):
+#   for j in (args.rotations):
     
-    train(1,i ,coords, features, affinity, j, std, lr= 1e-5)
-    test('validation', coords, features, affinity, std)
-  store_results(1,i, coords, features, affinity, std)
+#     train(1,i ,coords, features, affinity, j, std, lr= 1e-5)
+#     test('validation', coords, features, affinity, std)
+#   store_results(1,i, coords, features, affinity, std)
 
-test('test', coords, features, affinity, std)
+# test('test', coords, features, affinity, std)
 
-for i in range(start_epoch, args.num_epochs):
-  for j in (args.rotations):
+# for i in range(start_epoch, args.num_epochs):
+#   for j in (args.rotations):
     
-    train(3,i ,coords, features, affinity, j, std, lr= 1e-6)
-    test('validation', coords, features, affinity, std)
-  store_results(3,i, coords, features, affinity, std)
+#     train(3,i ,coords, features, affinity, j, std, lr= 1e-6)
+#     test('validation', coords, features, affinity, std)
+#   store_results(3,i, coords, features, affinity, std)
 
-test('test', coords, features, affinity, std)
+# test('test', coords, features, affinity, std)
 
 
-print('==> Building network..')
-net = net()
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  net = nn.DataParallel(net,  device_ids = list(range(torch.cuda.device_count()))[:1])
+# print('==> Building network..')
+# net = net()
+# if torch.cuda.device_count() > 1:
+#   print("Let's use", torch.cuda.device_count(), "GPUs!")
+#   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+#   net = nn.DataParallel(net,  device_ids = list(range(torch.cuda.device_count()))[:1])
 
-criterion = nn.MSELoss()
-net = net.to(device)
+# criterion = nn.MSELoss()
+# net = net.to(device)
 
-start_epoch, start_step = 0, 0
-for i in range(start_epoch, args.num_epochs):
-  for j in (args.rotations):
+# start_epoch, start_step = 0, 0
+# for i in range(start_epoch, args.num_epochs):
+#   for j in (args.rotations):
     
-    train(2,i ,coords, features, affinity, j, std, lr= 1e-5)
-    test('validation', coords, features, affinity, std)
-  store_results(2,i, coords, features, affinity, std)
+#     train(2,i ,coords, features, affinity, j, std, lr= 1e-5)
+#     test('validation', coords, features, affinity, std)
+#   store_results(2,i, coords, features, affinity, std)
 
-test('test', coords, features, affinity, std)
+# test('test', coords, features, affinity, std)
 
-for i in range(start_epoch, args.num_epochs):
-  for j in (args.rotations):
+# for i in range(start_epoch, args.num_epochs):
+#   for j in (args.rotations):
     
-    train(4,i ,coords, features, affinity, j, std, lr= 1e-6)
-    test('validation', coords, features, affinity, std)
-  store_results(4,i, coords, features, affinity, std)
+#     train(4,i ,coords, features, affinity, j, std, lr= 1e-6)
+#     test('validation', coords, features, affinity, std)
+#   store_results(4,i, coords, features, affinity, std)
 
-test('test', coords, features, affinity, std)
+# test('test', coords, features, affinity, std)
+
+ID = 0
+
+def raytunetrain(config, checkpoint_dir=None, coords, features, affinity, std):
+  #Define net
+  net = raytuneNet(config)
+  #Transfer to GPU
+  device = "cpu"
+  if torch.cuda.is_available():
+      device = "cuda:0"
+      if torch.cuda.device_count() > 1:
+          net = nn.DataParallel(net)
+  net.to(device)
+
+  #Define optimizer
+  optimizer = optim.Adam(params, lr = config['lr'])
+
+  #Define Loss
+  criterion = nn.MSELoss()
+
+  #Checkpoint Criteria for RayTune
+  if checkpoint_dir:
+        checkpoint = os.path.join(checkpoint_dir, "checkpoint")
+        model_state, optimizer_state = torch.load(checkpoint)
+        net.load_state_dict(model_state)
+        optimizer.load_state_dict(optimizer_state)
+
+  #Epoch Iterations
+  global ID
+  for epoch in range(config['epochs']):
+    ID+=1
+    #Iterate for different rotations
+    for rot in (args.rotations):
+      #Load data
+      trainset = DB(coords, features, affinity, 'training', rot, std)
+      traindataloader = torch.utils.data.DataLoader(trainset, batch_size=config['batch_size'], shuffle=True)
+
+      print('\nID : %d | Epoch: %d | Rotations: %d ' % (ID, epoch, rot))
+
+      train_loss, correct, total = 0, 0, 0
+      params = net.parameters()
+
+      for batch_idx in range(len(dataloader)):
+        #Get input training data
+        inputs_pocket, inputs_ligand, targets = next(traindataloader)
+        inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
+
+        #Initialize grad to 0
+        optimizer.zero_grad()
+
+        #Forward pass
+        y_pred = net(inputs_pocket, inputs_ligand)
+        loss = criterion(y_pred, targets)
+
+        #Backward pass
+        loss.backward()
+        optimizer.step()
+
+        train_loss += loss.item()
+
+        # NOTE : Logging here
+        total += targets.size(0)
+
+        with open("../save/logs/train_loss_raytune{}.log".format(ID), "a+") as lfile:
+          lfile.write("{}\n".format(train_loss/(batch_idx+1))
+
+        del inputs_pocket, inputs_ligand, targets
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        with open("../save/info_%d.txt"%ID, "w+") as f:
+          f.write("{} {}".format(epoch, batch_idx))
+
+        progress_bar(batch_idx, len(dataloader), 'Loss: %.3f ' % (train_loss/(batch_idx+1)))
+
+    #Validation loss
+    valset = DB(coords, features, affinity, 'validation', 0, std)
+    valdataloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=False)
+
+    val_loss = 0
+    inputs_pocket, inputs_ligand, targets = next(valdataloader)
+    inputs_pocket, inputs_ligand, targets = inputs_pocket.to(device), inputs_ligand.to(device), targets.to(device)
+    y_pred = net(inputs_pocket, inputs_ligand)
+    loss = criterion(y_pred, targets)
+    val_loss += loss.item()
+
+    print("validation loss : ", val_loss)
+
+    del inputs_pocket, inputs_ligand, targets, y_pred
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    store_results(ID, net, epoch, coords, features, affinity, std)
+
+    # Here we save a checkpoint. It is automatically registered with
+    # Ray Tune and will potentially be passed as the `checkpoint_dir`
+    # parameter in future iterations.
+    with tune.checkpoint_dir(step=epoch) as checkpoint_dir:
+      path = os.path.join(checkpoint_dir, "checkpoint")
+      torch.save(
+        (net.state_dict(), optimizer.state_dict()), path)
+
+    tune.report(loss=(val_loss / val_steps), accuracy=correct / total)
+  print("Finished Training")
+
+def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
+  config = {
+    "pocket_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "ligand_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "fc_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "conv0_filters": tune.choice([2, 4, 8, 16],
+    "conv1_filters": tune.choice([2, 4, 8, 16],
+    "conv2_filters": tune.choice([2, 4, 8, 16],
+    "conv3_filters": tune.choice([2, 4, 8, 16],
+    "conv4_filters": tune.choice([2, 4, 8, 16],
+    "conv_kernel": tune.choice([2, 4, 8, 16],
+    "maxpool_kernel": tune.choice([2, 4, 8, 16],
+    "dropout":tune.choice([2, 4, 8, 16],
+    "ligfc0": tune.choice([2, 4, 8, 16],
+    "ligfc1": tune.choice([2, 4, 8, 16],
+    "ligfc2": tune.choice([2, 4, 8, 16],
+    "ligfc3": tune.choice([2, 4, 8, 16],
+    "fc0": tune.choice([2, 4, 8, 16],
+    "fc1": tune.choice([2, 4, 8, 16],
+    "fc2": tune.choice([2, 4, 8, 16],
+    "fc3": tune.choice([2, 4, 8, 16],
+    "lr": tune.loguniform(1e-4, 1e-1),
+    "batch_size": tune.choice([2, 4, 8, 16])
+  }
+  scheduler = ASHAScheduler(
+    max_t=max_num_epochs,
+    grace_period=1,
+  reduction_factor=2)
+  result = tune.run(
+    tune.with_parameters(raytunetrain, coords=coords, features=features, affinity=affinity, std=std),
+    resources_per_trial={"cpu": 2, "gpu": gpus_per_trial},
+    config=config,
+    metric="loss",
+    mode="min",
+    num_samples=num_samples,
+    scheduler=scheduler
+  )
+
+  best_trial = result.get_best_trial("loss", "min", "last")
+  print("Best trial config: {}".format(best_trial.config))
+  print("Best trial final validation loss: {}".format(best_trial.last_result["loss"]))
+  print("Best trial final validation accuracy: {}".format(best_trial.last_result["accuracy"]))
+
+  best_trained_model = Net(best_trial.config["l1"], best_trial.config["l2"])
+  device = "cpu"
+  if(torch.cuda.is_available()):
+    device = "cuda:0"
+    if(gpus_per_trial > 1):
+      best_trained_model = nn.DataParallel(best_trained_model)
+  best_trained_model.to(device)
+
+  checkpoint_path = os.path.join(best_trial.checkpoint.value, "checkpoint")
+
+  model_state, optimizer_state = torch.load(checkpoint_path)
+  best_trained_model.load_state_dict(model_state)
+
+  test_acc = test_accuracy(best_trained_model, device)
+  print("Best trial test set accuracy: {}".format(test_acc))
+
+main()
+
+
+
+
+
+

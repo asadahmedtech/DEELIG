@@ -51,6 +51,67 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class raytuneNet(nn.Module):
+    def __init__(self, config, num_classes=1, input_dims = [43, 21, 21]):
+        super(net, self).__init__()
+
+        self.features_pocket_layers = []
+        for layer in range(config['pocket_layers']):
+            if(layer == 0):
+                self.features_pocket_layers.append(nn.Conv3d(43, config["conv{}_filter".format(layer)], config["conv_kernel".format(layer)], padding=(1,1,1)))
+                self.features_pocket_layers.append(nn.ReLU(inplace = True))
+                self.features_pocket_layers.append(nn.MaxPool3d(config["maxpool_kernel"]))
+            else:
+                self.features_pocket_layers.append(nn.Conv3d(config["conv{}_filter".format(layer-1)], config["conv{}_filter".format(layer)], config["conv_kernel".format(layer)]))
+                self.features_pocket_layers.append(nn.BatchNorm3d(config["conv{}_filter".format(layer)]))
+                self.features_pocket_layers.append(nn.ReLU(inplace = True))
+                self.features_pocket_layers.append(nn.MaxPool3d(config["maxpool_kernel"]))
+        self.features_pocket = nn.Sequential(*self.features_pocket_layers)
+        del self.features_pocket_layers
+        
+        self.features_ligand_layers = []
+        for layer in range(config['ligand_layers']):
+            if(layer == 0):
+                self.features_ligand_layers.append(nn.Linear(11496, config['ligfc{}'.format(layer)]))
+                self.features_ligand_layers.append(nn.ReLU(inplace = True))
+                self.features_ligand_layers.append(nn.Dropout(config['dropout']))
+            else:
+                self.features_ligand_layers.append(nn.Linear(config['ligfc{}'.format(layer-1)], config['ligfc{}'.format(layer)]))
+                self.features_ligand_layers.append(nn.ReLU(inplace = True))
+                self.features_ligand_layers.append(nn.Dropout(config['dropout']))
+        self.features_ligand = nn.Sequential(*self.features_ligand_layers)
+        del self.features_ligand_layers
+
+        num_features_after_pcnn = functools.reduce(operator.mul, list(self.features_pocket(torch.rand(1, *input_dim)).shape))
+        num_features_after_ligfc = config['ligfc{}'.format(config['ligand_layers']-1)]
+
+        self.features_fc_layers = []
+        for layer in range(config['fc_layers']):
+            if(layer == 0):
+                self.features_fc_layers.append(nn.Linear(num_features_after_pcnn + num_features_after_ligfc, config['fc{}'.format(layer)]))
+                self.features_fc_layers.append(nn.ReLU(inplace = True))
+                self.features_fc_layers.append(nn.Dropout(config['dropout']))
+            elif(layer == config['fc_layers']-1):
+                self.features_fc_layers.append(nn.Linear(config['fc{}'.format(layer-1)], 1))
+            else:
+                self.features_fc_layers.append(nn.Linear(config['fc{}'.format(layer-1)], config['fc{}'.format(layer)]))
+                self.features_fc_layers.append(nn.ReLU(inplace = True))
+                self.features_fc_layers.append(nn.Dropout(config['dropout']))
+        self.regressor = nn.Sequential(*self.features_fc_layers)
+        del self.features_fc_layers
+
+    def forward(self, x_p, x_l):
+        x_p = self.features_pocket(x_p)
+        x_l = self.features_ligand(x_l)
+        # print(x_p.shape, x_l.shape)
+        
+        x_p = x_p.view(x_p.size()[0], -1)
+        x = torch.cat((x_p, x_l),1)
+        # print(x.shape)
+        del x_p, x_l
+        x = self.regressor(x)
+        return x
+
 class pdbbindnet(nn.Module):
     def __init__(self, num_classes=1):
         super(net, self).__init__()
