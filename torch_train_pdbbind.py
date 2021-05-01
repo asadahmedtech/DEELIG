@@ -365,7 +365,7 @@ def raytunetrain(config, checkpoint_dir=None, coords, features, affinity, std):
 
   #Epoch Iterations
   global ID
-  for epoch in range(config['epochs']):
+  for epoch in range(20):
     ID+=1
     #Iterate for different rotations
     for rot in (args.rotations):
@@ -443,27 +443,26 @@ def raytunetrain(config, checkpoint_dir=None, coords, features, affinity, std):
 
 def main(num_samples=10, max_num_epochs=10, gpus_per_trial=2):
   config = {
-    "pocket_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-    "ligand_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-    "fc_layers": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-    "conv0_filters": tune.choice([2, 4, 8, 16],
-    "conv1_filters": tune.choice([2, 4, 8, 16],
-    "conv2_filters": tune.choice([2, 4, 8, 16],
-    "conv3_filters": tune.choice([2, 4, 8, 16],
-    "conv4_filters": tune.choice([2, 4, 8, 16],
-    "conv_kernel": tune.choice([2, 4, 8, 16],
-    "maxpool_kernel": tune.choice([2, 4, 8, 16],
-    "dropout":tune.choice([2, 4, 8, 16],
-    "ligfc0": tune.choice([2, 4, 8, 16],
-    "ligfc1": tune.choice([2, 4, 8, 16],
-    "ligfc2": tune.choice([2, 4, 8, 16],
-    "ligfc3": tune.choice([2, 4, 8, 16],
-    "fc0": tune.choice([2, 4, 8, 16],
-    "fc1": tune.choice([2, 4, 8, 16],
-    "fc2": tune.choice([2, 4, 8, 16],
-    "fc3": tune.choice([2, 4, 8, 16],
+    "pocket_layers": tune.sample_from(lambda _: np.random.randint(2, 9)),
+    "ligand_layers": tune.sample_from(lambda _: np.random.randint(2, 9)),
+    "fc_layers": tune.sample_from(lambda _: np.random.randint(2, 9)),
+    "conv0_filters": tune.choice([16, 32, 64, 128, 256],
+    "conv1_filters": tune.choice([16, 32, 64, 128, 256],
+    "conv2_filters": tune.choice([16, 32, 64, 128, 256],
+    "conv3_filters": tune.choice([16, 32, 64, 128, 256],
+    "conv4_filters": tune.choice([16, 32, 64, 128, 256],
+    "conv_kernel": tune.choice([3, 5],
+    "dropout": tune.sample_from(lambda _: 0.1 * np.random.randint(0, 5)),
+    "ligfc0": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "ligfc1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "ligfc2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "ligfc3": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "fc0": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "fc1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "fc2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+    "fc3": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
     "lr": tune.loguniform(1e-4, 1e-1),
-    "batch_size": tune.choice([2, 4, 8, 16])
+    "batch_size": tune.choice([8, 16, 24, 32])
   }
   scheduler = ASHAScheduler(
     max_t=max_num_epochs,

@@ -60,12 +60,12 @@ class raytuneNet(nn.Module):
             if(layer == 0):
                 self.features_pocket_layers.append(nn.Conv3d(43, config["conv{}_filter".format(layer)], config["conv_kernel".format(layer)], padding=(1,1,1)))
                 self.features_pocket_layers.append(nn.ReLU(inplace = True))
-                self.features_pocket_layers.append(nn.MaxPool3d(config["maxpool_kernel"]))
+                self.features_pocket_layers.append(nn.MaxPool3d(2))
             else:
                 self.features_pocket_layers.append(nn.Conv3d(config["conv{}_filter".format(layer-1)], config["conv{}_filter".format(layer)], config["conv_kernel".format(layer)]))
                 self.features_pocket_layers.append(nn.BatchNorm3d(config["conv{}_filter".format(layer)]))
                 self.features_pocket_layers.append(nn.ReLU(inplace = True))
-                self.features_pocket_layers.append(nn.MaxPool3d(config["maxpool_kernel"]))
+                self.features_pocket_layers.append(nn.MaxPool3d(2))
         self.features_pocket = nn.Sequential(*self.features_pocket_layers)
         del self.features_pocket_layers
         
